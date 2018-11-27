@@ -1,0 +1,7 @@
+main: me.Logaaan.mini.Main
+version: 1.0.0
+author: Logaaan
+name: MiniPlugin
+commands:
+  givemec:
+    description: null
