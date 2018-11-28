@@ -253,6 +253,7 @@ public class Main extends JavaPlugin implements Listener{
 			List<ItemStack> drops = e.getDrops();
 			for (ItemStack i : drops) {
 				if (i.hasItemMeta() && i.getItemMeta().hasLore()) {
+					int max_z = 0;
 					List<String> lore = i.getItemMeta().getLore();
 					int toAddDam = 0;
 					int critC = 0;
@@ -288,6 +289,11 @@ public class Main extends JavaPlugin implements Listener{
 							l = l.replace("Zapaleni: ", "");
 							l = l.replace("%", "");
 							zapaleni = Integer.parseInt(l);
+						}
+						if (l.contains("Zivotnost: ")) {
+							l = ChatColor.stripColor(l);
+							l = l.replace("Zivotnost: ", "");
+							max_z = Integer.parseInt(l);
 						}
 					}
 					String rarity = "Common";
@@ -512,6 +518,7 @@ public class Main extends JavaPlugin implements Listener{
 						}
 						lore.add(ChatColor.RED+"Rarita: "+ChatColor.WHITE+"Common");
 					}
+					lore.add(ChatColor.GRAY+"Zivotnost: "+max_z+"/"+max_z);
 					e.getDrops().remove(i);
 					ItemMeta m = i.getItemMeta();
 					m.setLore(lore);
