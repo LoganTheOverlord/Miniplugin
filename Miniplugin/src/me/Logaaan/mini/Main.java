@@ -226,7 +226,8 @@ public class Main extends JavaPlugin implements Listener{
 		if (mobs.containsValue(e.getMob())) {
 			e.getKiller().sendMessage("GG");
 			mobs.values().remove(e.getMob());
-			for (ItemStack i : e.getDrops()) {
+			List<ItemStack> drops = e.getDrops();
+			for (ItemStack i : drops) {
 				if (i.hasItemMeta() && i.getItemMeta().hasLore()) {
 					List<String> lore = i.getItemMeta().getLore();
 					int toAddDam = 0;
