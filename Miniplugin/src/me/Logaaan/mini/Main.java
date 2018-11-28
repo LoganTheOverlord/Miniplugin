@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
@@ -30,6 +31,82 @@ public class Main extends JavaPlugin implements Listener{
 	public void onEnable() {
 		getServer().getPluginManager().registerEvents(this, this);
 		this.getCommand("givemec").setExecutor(new Commands());
+		this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+
+			@Override
+			public void run() {
+				for (Player p : getServer().getOnlinePlayers()) {
+					ItemStack helm = p.getInventory().getHelmet();
+					ItemStack chest = p.getInventory().getChestplate();
+					ItemStack legs = p.getInventory().getLeggings();
+					ItemStack boots = p.getInventory().getBoots();
+					ItemStack tool = p.getItemInHand();
+					double toAddHP = 0;
+					if (tool != null) {
+						if (tool.hasItemMeta() && tool.getItemMeta().hasLore()) {
+							List<String> lore = tool.getItemMeta().getLore();
+							for (String l : lore) {
+								if (l.contains("Zivoty: ")) {
+									String[] firstpass = l.split(" ");
+									toAddHP += Integer.parseInt(ChatColor.stripColor(firstpass[1]));
+								}
+							}
+						}
+					}
+					//HELMA
+					if (helm != null) {
+						if (helm.hasItemMeta() && helm.getItemMeta().hasLore()) {
+							List<String> lore = helm.getItemMeta().getLore();
+							for (String l : lore) {
+								if (l.contains("Zivoty: ")) {
+									String[] firstpass = l.split(" ");
+									toAddHP += Integer.parseInt(ChatColor.stripColor(firstpass[1]));
+								}
+							}
+						}
+					}
+					//CHESTPLATE
+					if (chest != null) {
+						if (chest.hasItemMeta() && chest.getItemMeta().hasLore()) {
+							List<String> lore = chest.getItemMeta().getLore();
+							for (String l : lore) {
+								if (l.contains("Zivoty: ")) {
+									String[] firstpass = l.split(" ");
+									toAddHP += Integer.parseInt(ChatColor.stripColor(firstpass[1]));
+								}
+							}
+						}
+					}
+					//LEGGINGS
+					if (legs != null) {
+						if (legs.hasItemMeta() && legs.getItemMeta().hasLore()) {
+							List<String> lore = legs.getItemMeta().getLore();
+							for (String l : lore) {
+								if (l.contains("Zivoty: ")) {
+									String[] firstpass = l.split(" ");
+									toAddHP += Integer.parseInt(ChatColor.stripColor(firstpass[1]));
+								}
+							}
+						}
+					}
+					//BOTY
+					if (boots != null) {
+						if (boots.hasItemMeta() && boots.getItemMeta().hasLore()) {
+							List<String> lore = boots.getItemMeta().getLore();
+							for (String l : lore) {
+								if (l.contains("Zivoty: ")) {
+									String[] firstpass = l.split(" ");
+									toAddHP += Integer.parseInt(ChatColor.stripColor(firstpass[1]));
+								}
+							}
+						}
+					}
+					p.setMaxHealth(20+toAddHP);
+				}
+				
+			}
+			
+		}, 1L, 10L);
 	}
 	
 	public void onDisable() {
@@ -83,9 +160,12 @@ public class Main extends JavaPlugin implements Listener{
 					int index_zivotnost = 0;
 					int max_dur = 99999; //max dur.
 					int remaining = 0; //zbyva
+					double toAddDam = 0;
+					double critC = 0;
+					double critH = 0;
 					boolean dobreak = false;
 					for (String l : lore) { //je to tak lepší, protože mám rovnou string a nemusím ho získávat
-						if (l.contains("Zivotnost")) {
+						if (l.contains("Zivotnost: ")) {
 							index_zivotnost = index;
 							l = ChatColor.stripColor(l);
 							String[] well = l.split(" ");
@@ -102,7 +182,34 @@ public class Main extends JavaPlugin implements Listener{
 								p.getItemInHand().setItemMeta(m);
 							}
 						}
+						if (l.contains("Poskozeni: ") && !l.contains("Critical")) {
+							index_zivotnost = index;
+							l = ChatColor.stripColor(l);
+							l = l.replace("Poskozeni: ", "");
+							toAddDam = Integer.parseInt(l);
+						}
+						if (l.contains("Critical Sance: ")) {
+							index_zivotnost = index;
+							l = ChatColor.stripColor(l);
+							l = l.replace("Critical Sance: ", "");
+							l = l.replace("%", "");
+							critC = Integer.parseInt(l);
+						}
+						if (l.contains("Critical Poskozeni: ")) {
+							index_zivotnost = index;
+							l = ChatColor.stripColor(l);
+							l = l.replace("Critical Poskozeni: ", "");
+							l = l.replace("%", "");
+							critH = Integer.parseInt(l);
+						}
+
+
 						index++;
+					}
+					e.setDamage(e.getDamage() + toAddDam);
+					if (new Random().nextInt(100) < critC) {
+						e.setDamage(e.getDamage() + (e.getDamage() / 100 * critH));
+						e.getDamager().sendMessage("Critical Hit!");
 					}
 				}
 			}

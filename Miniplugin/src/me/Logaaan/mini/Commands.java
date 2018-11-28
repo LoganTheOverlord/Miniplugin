@@ -24,6 +24,9 @@ public class Commands implements CommandExecutor{
 			mt.setDisplayName(ChatColor.RED+"Custom Sword");
 			List<String> lore = new ArrayList<String>();
 			lore.add(ChatColor.GRAY+"Zivotnost: 10/10");
+			lore.add(ChatColor.GRAY+"Poskozeni: 2");
+			lore.add(ChatColor.GRAY+"Critical Sance: 47%");
+			lore.add(ChatColor.GRAY+"Critical Poskozeni: 102%");
 			mt.setLore(lore);
 			sw.setItemMeta(mt);
 			p.getInventory().addItem(sw);
