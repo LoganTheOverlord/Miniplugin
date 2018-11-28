@@ -132,7 +132,7 @@ public class Main extends JavaPlugin implements Listener{
 								s = s.replace("Poskozeni: ", "");
 								int pos = Integer.parseInt(s);
 								pos += new Random().nextInt(3) - Math.floor(new Random().nextDouble());
-								lore.set(index, ChatColor.GRAY+"Poskozeni: "+pos);
+								lore.set(index, ChatColor.RED+"Poskozeni: "+ChatColor.WHITE+pos);
 								applied = true;
 								ItemMeta m = e.getCurrentItem().getItemMeta();
 								m.setLore(lore);
@@ -144,7 +144,7 @@ public class Main extends JavaPlugin implements Listener{
 								s = s.replace("%", "");
 								int pos = Integer.parseInt(s);
 								pos += new Random().nextInt(2) - Math.floor(new Random().nextDouble());
-								lore.set(index, ChatColor.GRAY+"Critical Poskozeni: "+pos+"%");
+								lore.set(index, ChatColor.RED+"Critical Poskozeni: "+ChatColor.WHITE+pos+"%");
 								applied = true;
 								ItemMeta m = e.getCurrentItem().getItemMeta();
 								m.setLore(lore);
@@ -156,7 +156,31 @@ public class Main extends JavaPlugin implements Listener{
 								s = s.replace("%", "");
 								int pos = Integer.parseInt(s);
 								pos += new Random().nextInt(2) - Math.floor(new Random().nextDouble());
-								lore.set(index, ChatColor.GRAY+"Critical Sance: "+pos+"%");
+								lore.set(index, ChatColor.RED+"Critical Sance: "+ChatColor.WHITE+pos+"%");
+								applied = true;
+								ItemMeta m = e.getCurrentItem().getItemMeta();
+								m.setLore(lore);
+								e.getCurrentItem().setItemMeta(m);
+							}
+							if (s.contains("Zapaleni: ")) {
+								s = ChatColor.stripColor(s);
+								s = s.replace("Zapaleni: ", "");
+								s = s.replace("%", "");
+								int pos = Integer.parseInt(s);
+								pos += new Random().nextInt(2) - Math.floor(new Random().nextDouble());
+								lore.set(index, ChatColor.RED+"Zapaleni: "+ChatColor.WHITE+pos+"%");
+								applied = true;
+								ItemMeta m = e.getCurrentItem().getItemMeta();
+								m.setLore(lore);
+								e.getCurrentItem().setItemMeta(m);
+							}
+							if (s.contains("Zpomaleni: ")) {
+								s = ChatColor.stripColor(s);
+								s = s.replace("Zpomaleni: ", "");
+								s = s.replace("%", "");
+								int pos = Integer.parseInt(s);
+								pos += new Random().nextInt(2) - Math.floor(new Random().nextDouble());
+								lore.set(index, ChatColor.RED+"Zpomaleni: "+ChatColor.WHITE+pos+"%");
 								applied = true;
 								ItemMeta m = e.getCurrentItem().getItemMeta();
 								m.setLore(lore);
