@@ -260,40 +260,47 @@ public class Main extends JavaPlugin implements Listener{
 					int critH = 0;
 					int zapaleni = 0;
 					int slow = 0;
+					boolean found = false;
 					for (String l : lore) {
 						if (l.contains("Poskozeni: ") && !l.contains("Critical")) {
 							l = ChatColor.stripColor(l);
 							l = l.replace("Poskozeni: ", "");
 							toAddDam = Integer.parseInt(l);
+							found = true;
 						}
 						if (l.contains("Critical Sance: ")) {
 							l = ChatColor.stripColor(l);
 							l = l.replace("Critical Sance: ", "");
 							l = l.replace("%", "");
 							critC = Integer.parseInt(l);
+							found = true;
 						}
 						if (l.contains("Critical Poskozeni: ")) {
 							l = ChatColor.stripColor(l);
 							l = l.replace("Critical Poskozeni: ", "");
 							l = l.replace("%", "");
 							critH = Integer.parseInt(l);
+							found = true;
 						}
 						if (l.contains("Zpomaleni: ")) {
 							l = ChatColor.stripColor(l);
 							l = l.replace("Zpomaleni: ", "");
 							l = l.replace("%", "");
 							slow = Integer.parseInt(l);
+							found = true;
 						}
 						if (l.contains("Zapaleni: ")) {
 							l = ChatColor.stripColor(l);
 							l = l.replace("Zapaleni: ", "");
 							l = l.replace("%", "");
 							zapaleni = Integer.parseInt(l);
+							found = true;
 						}
 						if (l.contains("Zivotnost: ")) {
 							l = ChatColor.stripColor(l);
 							l = l.replace("Zivotnost: ", "");
 							max_z = Integer.parseInt(l);
+							found = true;
 						}
 					}
 					String rarity = "Common";
@@ -518,12 +525,14 @@ public class Main extends JavaPlugin implements Listener{
 						}
 						lore.add(ChatColor.RED+"Rarita: "+ChatColor.WHITE+"Common");
 					}
-					lore.add(ChatColor.GRAY+"Zivotnost: "+max_z+"/"+max_z);
-					e.getDrops().remove(i);
-					ItemMeta m = i.getItemMeta();
-					m.setLore(lore);
-					i.setItemMeta(m);
-					e.getDrops().add(i);
+					if (found) {
+						lore.add(ChatColor.GRAY+"Zivotnost: "+max_z+"/"+max_z);
+						e.getDrops().remove(i);
+						ItemMeta m = i.getItemMeta();
+						m.setLore(lore);
+						i.setItemMeta(m);
+						e.getDrops().add(i);
+					}
 				}
 			}
 		}
