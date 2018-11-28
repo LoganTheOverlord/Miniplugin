@@ -2,6 +2,7 @@ package me.Logaaan.mini;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -23,13 +24,18 @@ public class Commands implements CommandExecutor{
 			ItemMeta mt = sw.getItemMeta();
 			mt.setDisplayName(ChatColor.RED+"Custom Sword");
 			List<String> lore = new ArrayList<String>();
-			lore.add(ChatColor.GRAY+"Zivotnost: 10/10");
-			lore.add(ChatColor.GRAY+"Poskozeni: 2");
-			lore.add(ChatColor.GRAY+"Critical Sance: 47%");
-			lore.add(ChatColor.GRAY+"Critical Poskozeni: 102%");
+			lore.add(ChatColor.GRAY+"Zivotnost: 100/100");
+			lore.add(ChatColor.GRAY+"Poskozeni: "+new Random().nextInt(7));
+			lore.add(ChatColor.GRAY+"Critical Sance: "+new Random().nextInt(80)+"%");
+			lore.add(ChatColor.GRAY+"Critical Poskozeni: "+new Random().nextInt(120)+"%");
 			mt.setLore(lore);
 			sw.setItemMeta(mt);
 			p.getInventory().addItem(sw);
+			ItemStack zus = new ItemStack(Material.PAPER);
+			ItemMeta mt2 = zus.getItemMeta();
+			mt2.setDisplayName(ChatColor.GREEN+"Listek na Vylepseni");
+			zus.setItemMeta(mt2);
+			p.getInventory().addItem(zus);
 		}
 		
 		

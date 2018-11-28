@@ -7,11 +7,14 @@ import java.util.Map;
 import java.util.Random;
 
 import org.bukkit.Chunk;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.inventory.InventoryAction;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.inventory.ItemStack;
@@ -114,6 +117,84 @@ public class Main extends JavaPlugin implements Listener{
 	}
 	
 	@EventHandler
+	public void clickInv(InventoryClickEvent e) {
+		if (e.getCurrentItem() != null && e.getCurrentItem().hasItemMeta() && e.getCurrentItem().getItemMeta().hasDisplayName()) {
+			if (e.getCursor() != null && e.getCursor().hasItemMeta() && e.getCursor().getItemMeta().hasDisplayName() && e.getCursor().getItemMeta().getDisplayName().equals(ChatColor.GREEN+"Listek na Vylepseni")) {
+				if (e.getCursor().getAmount() == 1) {
+					List<String> lore = e.getCurrentItem().getItemMeta().getLore();
+					int index = 0;
+					boolean applied = false;
+					String name = e.getCurrentItem().getItemMeta().getDisplayName();
+					if (!name.contains("[+25]")) {
+						for (String s : lore) {
+							if (s.contains("Poskozeni: ") && !s.contains("Critical")) {
+								s = ChatColor.stripColor(s);
+								s = s.replace("Poskozeni: ", "");
+								int pos = Integer.parseInt(s);
+								pos += new Random().nextInt(3) - Math.floor(new Random().nextDouble());
+								lore.set(index, ChatColor.GRAY+"Poskozeni: "+pos);
+								applied = true;
+								ItemMeta m = e.getCurrentItem().getItemMeta();
+								m.setLore(lore);
+								e.getCurrentItem().setItemMeta(m);
+							}
+							if (s.contains("Critical Poskozeni: ")) {
+								s = ChatColor.stripColor(s);
+								s = s.replace("Critical Poskozeni: ", "");
+								s = s.replace("%", "");
+								int pos = Integer.parseInt(s);
+								pos += new Random().nextInt(2) - Math.floor(new Random().nextDouble());
+								lore.set(index, ChatColor.GRAY+"Critical Poskozeni: "+pos+"%");
+								applied = true;
+								ItemMeta m = e.getCurrentItem().getItemMeta();
+								m.setLore(lore);
+								e.getCurrentItem().setItemMeta(m);
+							}
+							if (s.contains("Critical Sance: ")) {
+								s = ChatColor.stripColor(s);
+								s = s.replace("Critical Sance: ", "");
+								s = s.replace("%", "");
+								int pos = Integer.parseInt(s);
+								pos += new Random().nextInt(2) - Math.floor(new Random().nextDouble());
+								lore.set(index, ChatColor.GRAY+"Critical Sance: "+pos+"%");
+								applied = true;
+								ItemMeta m = e.getCurrentItem().getItemMeta();
+								m.setLore(lore);
+								e.getCurrentItem().setItemMeta(m);
+							}
+							index ++;
+						}
+						if (applied == true) {
+							boolean hasLevel = false;
+							int level = 1;
+							for (int x = 1; x < 26; x++) {
+								if (name.contains("[+"+x+"]")) {
+									hasLevel = true;
+									level = x;
+								}
+							}
+							if (hasLevel) {
+								name = name.replace("[+"+level+"]", "[+"+(level + 1)+"]");
+							} else {
+								name = name + " " + ChatColor.YELLOW+"[+1]";
+							}
+							ItemMeta m = e.getCurrentItem().getItemMeta();
+							m.setDisplayName(name);
+							e.getCurrentItem().setItemMeta(m);
+								
+							e.getWhoClicked().sendMessage("Zuslechteni bylo uspesne!"); e.getCursor().setType(Material.AIR); e.setCancelled(true);
+						}
+					} else {
+						e.getWhoClicked().sendMessage("Maximalni stupen vylepseni dosazen!");
+					}
+				} else {
+					e.getWhoClicked().sendMessage("Zuslechtovat lze po jednom!");
+				}
+			}
+		}
+	}
+	
+	@EventHandler
 	public void shiftRight(PlayerInteractEvent e) {
 		Player p = e.getPlayer();
 		if (p.isSneaking()) {
@@ -145,6 +226,274 @@ public class Main extends JavaPlugin implements Listener{
 		if (mobs.containsValue(e.getMob())) {
 			e.getKiller().sendMessage("GG");
 			mobs.values().remove(e.getMob());
+			for (ItemStack i : e.getDrops()) {
+				if (i.hasItemMeta() && i.getItemMeta().hasLore()) {
+					List<String> lore = i.getItemMeta().getLore();
+					int toAddDam = 0;
+					int critC = 0;
+					int critH = 0;
+					int zapaleni = 0;
+					int slow = 0;
+					for (String l : lore) {
+						if (l.contains("Poskozeni: ") && !l.contains("Critical")) {
+							l = ChatColor.stripColor(l);
+							l = l.replace("Poskozeni: ", "");
+							toAddDam = Integer.parseInt(l);
+						}
+						if (l.contains("Critical Sance: ")) {
+							l = ChatColor.stripColor(l);
+							l = l.replace("Critical Sance: ", "");
+							l = l.replace("%", "");
+							critC = Integer.parseInt(l);
+						}
+						if (l.contains("Critical Poskozeni: ")) {
+							l = ChatColor.stripColor(l);
+							l = l.replace("Critical Poskozeni: ", "");
+							l = l.replace("%", "");
+							critH = Integer.parseInt(l);
+						}
+						if (l.contains("Zpomaleni: ")) {
+							l = ChatColor.stripColor(l);
+							l = l.replace("Zpomaleni: ", "");
+							l = l.replace("%", "");
+							slow = Integer.parseInt(l);
+						}
+						if (l.contains("Zapaleni: ")) {
+							l = ChatColor.stripColor(l);
+							l = l.replace("Zapaleni: ", "");
+							l = l.replace("%", "");
+							zapaleni = Integer.parseInt(l);
+						}
+					}
+					String rarity = "Common";
+					for (int x = 0; x < 5; x++) {
+						if (new Random().nextInt(100) < 10) {
+							rarity = "Artisan";
+						}
+						if (new Random().nextInt(100) < 15) {
+							rarity = "Ancient";
+						}
+						if (new Random().nextInt(100) < 25) {
+							rarity = "Epic";
+						}
+						if (new Random().nextInt(100) < 30) {
+							rarity = "Strong";
+						}
+						if (new Random().nextInt(100) < 40) {
+							rarity = "Majestic";
+						}
+						if (new Random().nextInt(100) < 50) {
+							rarity = "Uncommon";
+						}
+						if (new Random().nextInt(100) < 75) {
+							rarity = "Common";
+						}
+					}
+					if (rarity.equals("Artisan")) {
+						if (toAddDam > 0) {
+							toAddDam += (toAddDam / 100 * (new Random().nextInt(50) + 10));
+						}
+						if (critH > 0) {
+							critH += (critH / 100 * (new Random().nextInt(50) + 10));
+						}
+						if (critC > 0) {
+							critC += (critC / 100 * (new Random().nextInt(50) + 10));
+						}
+						if (zapaleni > 0) {
+							zapaleni += (zapaleni / 100 * (new Random().nextInt(50) + 10));
+						}
+						if (slow > 0) {
+							slow += (slow / 100 * (new Random().nextInt(50) + 10));
+						}
+						lore.clear();
+						lore.add(ChatColor.RED+"Poskozeni: "+ChatColor.WHITE+""+toAddDam);
+						lore.add(ChatColor.RED+"Critical Sance: "+ChatColor.WHITE+""+critC+"%");
+						lore.add(ChatColor.RED+"Critical Poskozeni: "+ChatColor.WHITE+""+critH+"%");
+						lore.add(ChatColor.RED+"Zapaleni: "+ChatColor.WHITE+""+zapaleni+"%");
+						lore.add(ChatColor.RED+"Zpomaleni: "+ChatColor.WHITE+""+slow+"%");
+						lore.add(ChatColor.RED+"Rarita: "+ChatColor.WHITE+"Artisan");
+					}
+					
+					if (rarity.equals("Ancient")) {
+						if (toAddDam > 0) {
+							toAddDam += (toAddDam / 100 * (new Random().nextInt(40) + 10));
+						}
+						if (critH > 0) {
+							critH += (critH / 100 * (new Random().nextInt(40) + 10));
+						}
+						if (critC > 0) {
+							critC += (critC / 100 * (new Random().nextInt(40) + 10));
+						}
+						if (zapaleni > 0) {
+							zapaleni += (zapaleni / 100 * (new Random().nextInt(40) + 10));
+						}
+						if (slow > 0) {
+							slow += (slow / 100 * (new Random().nextInt(40) + 10));
+						}
+						lore.clear();
+						lore.add(ChatColor.RED+"Poskozeni: "+ChatColor.WHITE+""+toAddDam);
+						lore.add(ChatColor.RED+"Critical Sance: "+ChatColor.WHITE+""+critC+"%");
+						lore.add(ChatColor.RED+"Critical Poskozeni: "+ChatColor.WHITE+""+critH+"%");
+						lore.add(ChatColor.RED+"Zapaleni: "+ChatColor.WHITE+""+zapaleni+"%");
+						lore.add(ChatColor.RED+"Zpomaleni: "+ChatColor.WHITE+""+slow+"%");
+						lore.add(ChatColor.RED+"Rarita: "+ChatColor.WHITE+"Ancient");
+					}
+					if (rarity.equals("Epic")) {
+						if (toAddDam > 0) {
+							toAddDam += (toAddDam / 100 * (new Random().nextInt(20) + 10));
+						}
+						if (critH > 0) {
+							critH += (critH / 100 * (new Random().nextInt(20) + 10));
+						}
+						if (critC > 0) {
+							critC += (critC / 100 * (new Random().nextInt(20) + 10));
+						}
+						if (zapaleni > 0) {
+							zapaleni += (zapaleni / (100 * new Random().nextInt(20) + 10));
+						}
+						if (slow > 0) {
+							slow += (slow / 100 * (new Random().nextInt(20) + 10));
+						}
+						lore.clear();						
+						lore.add(ChatColor.RED+"Poskozeni: "+ChatColor.WHITE+""+toAddDam);
+						lore.add(ChatColor.RED+"Critical Sance: "+ChatColor.WHITE+""+critC+"%");
+						lore.add(ChatColor.RED+"Critical Poskozeni: "+ChatColor.WHITE+""+critH+"%");
+						if (new Random().nextInt(100) < 70) {
+							lore.add(ChatColor.RED+"Zapaleni: "+ChatColor.WHITE+""+zapaleni+"%");
+						}
+						lore.add(ChatColor.RED+"Zpomaleni: "+ChatColor.WHITE+""+slow+"%");
+						lore.add(ChatColor.RED+"Rarita: "+ChatColor.WHITE+"Epic");
+					}
+					if (rarity.equals("Strong")) {
+						if (toAddDam > 0) {
+							toAddDam += (toAddDam / 100 * (new Random().nextInt(15) + 10));
+						}
+						if (critH > 0) {
+							critH += (critH / 100 * (new Random().nextInt(15) + 10));
+						}
+						if (critC > 0) {
+							critC += (critC / 100 * (new Random().nextInt(15) + 10));
+						}
+						if (zapaleni > 0) {
+							zapaleni += (zapaleni / 100 * (new Random().nextInt(15) + 10));
+						}
+						if (slow > 0) {
+							slow += (slow / 100 * (new Random().nextInt(15) + 10));
+						}
+						lore.clear();
+						lore.add(ChatColor.RED+"Poskozeni: "+ChatColor.WHITE+""+toAddDam);
+						lore.add(ChatColor.RED+"Critical Sance: "+ChatColor.WHITE+""+critC+"%");
+						lore.add(ChatColor.RED+"Critical Poskozeni: "+ChatColor.WHITE+""+critH+"%");
+						if (new Random().nextInt(100) < 40) {
+							lore.add(ChatColor.RED+"Zapaleni: "+ChatColor.WHITE+""+zapaleni+"%");
+						}
+						if (new Random().nextInt(100) < 30) {
+							lore.add(ChatColor.RED+"Zpomaleni: "+ChatColor.WHITE+""+slow+"%");
+						}
+						lore.add(ChatColor.RED+"Rarita: "+ChatColor.WHITE+"Strong");
+					}
+					if (rarity.equals("Majestic")) {
+						if (toAddDam > 0) {
+							toAddDam += (toAddDam / 100 * (new Random().nextInt(10) + 10));
+						}
+						if (critH > 0) {
+							critH += (critH / 100 * (new Random().nextInt(10) + 10));
+						}
+						if (critC > 0) {
+							critC += (critC / 100 * (new Random().nextInt(10) + 10));
+						}
+						if (zapaleni > 0) {
+							zapaleni += (zapaleni / 100 * (new Random().nextInt(10) + 10));
+						}
+						if (slow > 0) {
+							slow += (slow / 100 * (new Random().nextInt(10) + 10));
+						}
+						lore.clear();
+						lore.add(ChatColor.RED+"Poskozeni: "+ChatColor.WHITE+""+toAddDam);
+						lore.add(ChatColor.RED+"Critical Sance: "+ChatColor.WHITE+""+critC+"%");
+						if (new Random().nextInt(100) < 30) {
+							lore.add(ChatColor.RED+"Critical Poskozeni: "+ChatColor.WHITE+""+critH+"%");
+						}
+						if (new Random().nextInt(100) < 10) {
+							lore.add(ChatColor.RED+"Zapaleni: "+ChatColor.WHITE+""+zapaleni+"%");
+						}
+						if (new Random().nextInt(100) < 10) {
+							lore.add(ChatColor.RED+"Zpomaleni: "+ChatColor.WHITE+""+slow+"%");
+						}
+						lore.add(ChatColor.RED+"Rarita: "+ChatColor.WHITE+"Majestic");
+					}
+					
+					if (rarity.equals("Uncommon")) {
+						if (toAddDam > 0) {
+							toAddDam += (toAddDam / 100 * (new Random().nextInt(8) + 10));
+						}
+						if (critH > 0) {
+							critH += (critH / 100 * (new Random().nextInt(8) + 10));
+						}
+						if (critC > 0) {
+							critC += (critC / 100 * (new Random().nextInt(8) + 10));
+						}
+						if (zapaleni > 0) {
+							zapaleni += (zapaleni / 100 * (new Random().nextInt(8) + 10));
+						}
+						if (slow > 0) {
+							slow += (slow / 100 * (new Random().nextInt(8) + 10));
+						}
+						lore.clear();	
+						lore.add(ChatColor.RED+"Poskozeni: "+ChatColor.WHITE+""+toAddDam);
+						if (new Random().nextInt(100) < 28) {
+							lore.add(ChatColor.RED+"Critical Sance: "+ChatColor.WHITE+""+critC+"%");
+						}
+						if (new Random().nextInt(100) < 25) {
+							lore.add(ChatColor.RED+"Critical Poskozeni: "+ChatColor.WHITE+""+critH+"%");
+						}
+						if (new Random().nextInt(100) < 5) {
+							lore.add(ChatColor.RED+"Zapaleni: "+ChatColor.WHITE+""+zapaleni+"%");
+						}
+						if (new Random().nextInt(100) < 5) {
+							lore.add(ChatColor.RED+"Zpomaleni: "+ChatColor.WHITE+""+slow+"%");
+						}
+						lore.add(ChatColor.RED+"Rarita: "+ChatColor.WHITE+"Uncommon");
+					}
+					if (rarity.equals("Common")) {
+						if (toAddDam > 0) {
+							toAddDam += (toAddDam / 100 * (new Random().nextInt(5) + 10));
+						}
+						if (critH > 0) {
+							critH += (critH / 100 * (new Random().nextInt(5) + 10));
+						}
+						if (critC > 0) {
+							critC += (critC / 100 * (new Random().nextInt(5) + 10));
+						}
+						if (zapaleni > 0) {
+							zapaleni += (zapaleni / 100 * (new Random().nextInt(5) + 10));
+						}
+						if (slow > 0) {
+							slow += (slow / 100 * (new Random().nextInt(5) + 10));
+						}
+						lore.clear();
+						lore.add(ChatColor.RED+"Poskozeni: "+ChatColor.WHITE+""+toAddDam);
+						if (new Random().nextInt(100) < 12) {
+							lore.add(ChatColor.RED+"Critical Sance: "+ChatColor.WHITE+""+critC+"%");
+						}
+						if (new Random().nextInt(100) < 5) {
+							lore.add(ChatColor.RED+"Critical Poskozeni: "+ChatColor.WHITE+""+critH+"%");
+						}
+						if (new Random().nextInt(100) < 1) {
+							lore.add(ChatColor.RED+"Zapaleni: "+ChatColor.WHITE+""+zapaleni+"%");
+						}
+						if (new Random().nextInt(100) < 1) {
+							lore.add(ChatColor.RED+"Zpomaleni: "+ChatColor.WHITE+""+slow+"%");
+						}
+						lore.add(ChatColor.RED+"Rarita: "+ChatColor.WHITE+"Common");
+					}
+					e.getDrops().remove(i);
+					ItemMeta m = i.getItemMeta();
+					m.setLore(lore);
+					i.setItemMeta(m);
+					e.getDrops().add(i);
+				}
+			}
 		}
 	}
 	
@@ -183,24 +532,21 @@ public class Main extends JavaPlugin implements Listener{
 							}
 						}
 						if (l.contains("Poskozeni: ") && !l.contains("Critical")) {
-							index_zivotnost = index;
 							l = ChatColor.stripColor(l);
 							l = l.replace("Poskozeni: ", "");
 							toAddDam = Integer.parseInt(l);
 						}
 						if (l.contains("Critical Sance: ")) {
-							index_zivotnost = index;
 							l = ChatColor.stripColor(l);
 							l = l.replace("Critical Sance: ", "");
 							l = l.replace("%", "");
 							critC = Integer.parseInt(l);
 						}
 						if (l.contains("Critical Poskozeni: ")) {
-							index_zivotnost = index;
 							l = ChatColor.stripColor(l);
 							l = l.replace("Critical Poskozeni: ", "");
 							l = l.replace("%", "");
-							critH = Integer.parseInt(l);
+							critH = 20 + Integer.parseInt(l);
 						}
 
 
